@@ -1,18 +1,29 @@
 import { useState } from "react"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 import axios from "axios"
+
 export default function Signup() {
     const [values,setValues] = useState({
         name: "",
         email:"",
         password:"",
     })
+    const navigate = useNavigate()
 
 
     const handlesubmit=(e)=>{
         e.preventDefault()
         axios.post("http://localhost:8000/register",values)
-        .then(res=>console.log(res))
+        .then(res=>
+            {
+            
+            if(res.data.Status === "Success"){
+                navigate("/login")
+            }else{
+                alert("Error here")
+            }
+        }
+         )
         .catch(err=>console.log(err))
         
     }

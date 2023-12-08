@@ -1,16 +1,25 @@
 import { useState } from "react"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 export default function Login() {
     const [values,setValues] = useState({
       email: "",
       password:"",
     })
+    const navigate = useNavigate()
 
     const handleSubmit = (e)=>{
         e.preventDefault()
-        axios.post("http://localhost:9000/login", values)
-        .then(res=>console.log(res))
+        axios.post("http://localhost:8000/login", values)
+        .then(res=>
+          {
+          if(res.data.Status ==="Success"){
+            navigate("/")
+          }else{
+            alert("Invalid Credentials")
+          }
+        }
+          )
         .catch(err=>console.log(err))
         }
 
@@ -33,7 +42,7 @@ export default function Login() {
               </div>
               <button type="submit" className="btn btn-success w-100 rounded-0">Log In</button>
               <p>You are agree to our terms and policies</p>
-              <Link to="/" className="btn btn-default border w-100 bg-light rounded-0 text-text-decoration-none">Sign Up</Link>
+              <Link to="/register" className="btn btn-default border w-100 bg-light rounded-0 text-text-decoration-none">Sign Up</Link>
       </form>
 
     </div>

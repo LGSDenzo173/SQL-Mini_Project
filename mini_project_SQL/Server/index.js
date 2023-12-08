@@ -35,30 +35,66 @@ db.connect((err) => {
 
 
 app.post('/register', (req, res) => {
-    const sql = "INSERT INTO login (`name`,`email`,`password`) VALUES (?)";
-    //hashing the password
-    bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
-        if (err) return res.json({ Error: "Error For Hashing Password" });
-        const values = [
-            req.body.name,
-            req.body.email,
-            hash
-        ]
-        db.query(sql, [values], (err, result) => {
-            if (err) return res.json({ Error: "Error Registering Record" });
-            else {
-                res.json({ Status: "Success" });
-            }
-        })
+    const { name, email, password } = req.body
+    bcrypt.hash(password, salt, (err, hash) => {
+        if (err) {
+            throw err
+            } else {
+                const sql = "INSERT INTO login (name,email,password) VALUES (?,?,?)"
+                    const values = [name, email, hash]
+                    db.query(sql, values, (err, result) => {
+                        if (err) {
+                            throw err
+                            } else {
+                                return res.json({Status: "Success"})
+                                }
+                                })
+                                }
 
-    });
+                            })
+
+    //Both code's Work
+    // const sql = "INSERT INTO login (`name`,`email`,`password`) VALUES (?)";
+    // //hashing the password
+    // bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
+    //     if (err) return res.json({ Error: "Error For Hashing Password" });
+    //     const values = [
+    //         req.body.name,
+    //         req.body.email,
+    //         hash
+    //     ]
+    //     db.query(sql, [values], (err, result) => {
+    //         if (err) return res.json({ Error: "Error Registering Record" });
+    //         else {
+    //             res.json({ Status: "Success" });
+    //         }
+    //     })
+
+    // });
 
 
 })
 
-app.post('/login', (req, res) => {
-    let sql = "SELECT * FROM users WHERE email=?";
 
+app.post('/login', (req,res)=>{
+    const sql = 'SELECT * FROM login WHERE email = ? ';
+    db.query(sql,[req.body.email], (err, data)=>{
+        if(err ) return res.json({Error: "Login error in server"});
+        if(data.length > 0){
+            bcrypt.compare(req.body.password.toString(), data[0].password, (err,response)=>{
+                if(err) return res.json({Error: "Error in comparing password"})
+                if(response) {
+                    return res.json({Status: "Success"})
+                }else{
+                    return res.json({Error: "Password does not Matched"})
+                }
+                })
+        } else{
+            return res.json({Error : "No email Exist"})
+        }
+        
+        
+    })
 })
 
 app.listen(Port, () => {
